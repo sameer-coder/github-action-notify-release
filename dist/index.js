@@ -6303,9 +6303,6 @@ async function getLatestRelease() {
     const latestRelease = (allReleasesResp && allReleasesResp.data && allReleasesResp.data.length) ? allReleasesResp.data[0] : null
     if (!latestRelease) throw new Error('Cannot find the latest release')
 
-    console.log(`Latest release - name:${latestRelease.name}, created:${latestRelease.created_at},
- Tag:${latestRelease.tag_name}, author:${latestRelease.author}`)
-
     return latestRelease
   } catch (error) {
     console.log(error);
@@ -6531,7 +6528,7 @@ var __webpack_exports__ = {};
 const core = __nccwpck_require__(3117)
 const differenceInDays = __nccwpck_require__(6454)
 const { logInfo, logError } = __nccwpck_require__(1607)
-const { getLastReleaseDate } = __nccwpck_require__(4960)
+const { getLatestRelease } = __nccwpck_require__(4960)
 const { getLastRepoUpdate } = __nccwpck_require__(3186)
 const { createIssue } = __nccwpck_require__(9782)
 
@@ -6539,11 +6536,15 @@ async function run() {
   try {
     logInfo('========Starting to run the stale release github action ============')
 
-    const daysToStaleRelease = core.getInput('days-to-stale-release')
+    const daysSinceLastRelease = core.getInput('days-to-stale-release')
 
-    const latestRelease = await getLastReleaseDate()
+    console.log(`Days since last release: ${daysSinceLastRelease}`)
+    console.log(`Fetching latest release......`)
 
-    logInfo(`Latest release is ${latestRelease}`)
+    const latestRelease = await getLatestRelease()
+
+    console.log(`Latest release - name:${latestRelease.name}, created:${latestRelease.created_at},
+ Tag:${latestRelease.tag_name}, author:${latestRelease.author}`)
 
     // const lastRepoUpdate = await getLastRepoUpdate()
 
