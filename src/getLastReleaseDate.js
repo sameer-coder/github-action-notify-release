@@ -1,42 +1,11 @@
 'use strict'
 
 const core = require('@actions/core')
-const { exec } = require('./exec')
 const { logInfo } = require('./log')
 const github = require("@actions/github")
 
-async function getLastReleaseDate() {
-  try {
-    // const packageName = packageJson.name
 
-    // logInfo(`Current npm package ${packageName}`)
-
-    // const { output, error } = await exec({
-    //   cmd: 'npm',
-    //   args: ['info', packageName, 'time', '--json'],
-    //   parseType: 'json'
-    // })
-
-    // if (error) {
-    //   return {
-    //     npmError: error,
-    //     npmPckNotFound: error.includes('npm ERR! 404'),
-    //   }
-    // }
-
-    // const lastReleaseDate = new Date(output.modified)
-
-    // logInfo(`Last release date ${lastReleaseDate}`)
-
-    // return { lastReleaseDate }
-
-    return await getAllReleases()
-  } catch (error) {
-    core.setFailed(error.message)
-  }
-}
-
-async function getAllReleases() {
+async function getLatestRelease() {
 
   try {
     const token = core.getInput('github-token', { required: true })
@@ -45,19 +14,22 @@ async function getAllReleases() {
     // Get owner and repo from context of payload that triggered the action
     const { owner, repo } = github.context.repo;
 
-    const allReleases = await octokit.request(`GET /repos/{owner}/{repo}/releases`, {
+    const allReleasesResp = await octokit.request(`GET /repos/{owner}/{repo}/releases`, {
       owner,
       repo
     })
 
-    console.log('All releases: ', allReleases)
-    console.log('All releases: ', typeof allReleases)
+    const latestRelease = (allReleasesResp && allReleasesResp.data && allReleasesResp.data.length) ? allReleasesResp.data[0] : null
+    if (!latestRelease) throw new Error('Cannot find the latest release')
 
-    return allReleases.length ? allReleases[0] : null
+    console.log(`Latest release - name:${latestRelease.name}, created:${latestRelease.created_at},
+ Tag:${latestRelease.tag_name}, author:${latestRelease.author}`)
+
+    return latestRelease
   } catch (error) {
     console.log(error);
     core.setFailed(error.message);
   }
 }
 
-exports.getLastReleaseDate = getLastReleaseDate
+exports.getLatestRelease = getLatestRelease
