@@ -6310,8 +6310,6 @@ const github = __nccwpck_require__(2228)
 async function getLatestRelease() {
   const token = core.getInput('github-token', { required: true })
   const octokit = github.getOctokit(token)
-
-  // Get owner and repo from context of payload that triggered the action
   const { owner, repo } = github.context.repo;
 
   const allReleasesResp = await octokit.request(`GET /repos/{owner}/{repo}/releases`, {
@@ -6328,6 +6326,7 @@ async function getLatestRelease() {
 async function getAllCommits() {
   const token = core.getInput('github-token', { required: true })
   const octokit = github.getOctokit(token)
+  const { owner, repo } = github.context.repo;
 
   // TODO: extract this out
   const allCommitsResp = await octokit.request('GET /repos/{owner}/{repo}/commits', {
@@ -6530,7 +6529,6 @@ async function run() {
 
     
   } catch (error) {
-    console.log(error.message)
     core.setFailed(error.message)
   }
 }
