@@ -7560,8 +7560,8 @@ async function getAllReleases() {
       repo
     })
 
-    logInfo(`All releases: '${allReleases}`)
-    console.log(`All releases: '${allReleases}`)
+    logInfo(`All releases: '${allReleases[0]}`)
+    console.log(`All releases: '${allReleases[0]}`)
 
     return allReleases.length ? allReleases[0] : null
   } catch (error) {
