@@ -7514,7 +7514,7 @@ const core = __nccwpck_require__(3117)
 const packageJson = __nccwpck_require__(306)
 const { exec } = __nccwpck_require__(2849)
 const { logInfo } = __nccwpck_require__(1607)
-const { GitHub, context } = __nccwpck_require__(2228)
+const { github, context } = __nccwpck_require__(2228)
 
 async function getLastReleaseDate() {
   try {
@@ -7551,7 +7551,6 @@ async function getAllReleases() {
 
   try {
     const token = core.getInput('github-token', { required: true })
-    const github = new GitHub(token);
     const octokit = github.getOctokit(token)
 
     // Get owner and repo from context of payload that triggered the action
