@@ -1,10 +1,10 @@
 'use strict'
 
 const core = require('@actions/core')
-const differenceInDays = require('date-fns/differenceInDays')
-const { logInfo, logError } = require('./log')
+// const differenceInDays = require('date-fns/differenceInDays')
+const { logInfo } = require('./log')
 const { getLatestRelease, getUnreleasedCommits } = require('./release')
-const { createIssue } = require('./createIssue')
+// const { createIssue } = require('./createIssue')
 
 async function run() {
   try {

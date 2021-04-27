@@ -1,7 +1,6 @@
 'use strict'
 
 const core = require('@actions/core')
-const { logInfo } = require('./log')
 const github = require("@actions/github")
 
 
@@ -41,7 +40,7 @@ async function getUnreleasedCommits(latestRelease, daysSinceLastRelease) {
   for (const commit of allCommitsResp.data) {
   const commitDate = new Date(commit.commit.author.date).getTime()
   if (lastReleaseDate < commitDate && commitDate < staleDate) {
-    allCommits.push({ message: commit.commit.message, author: commit.author.login,
+    unreleasedCommits.push({ message: commit.commit.message, author: commit.author.login,
     date: commitDate, url: commit.url});
 
     console.log(JSON.stringify({ message: commit.commit.message, author: commit.author.login,
@@ -52,7 +51,7 @@ async function getUnreleasedCommits(latestRelease, daysSinceLastRelease) {
   return unreleasedCommits;
 }
 
-async function getCommitsSinceLastRelease(lastRelease, allCommits) {
+async function getCommitsSinceLastRelease() {
   return null
 }
 
