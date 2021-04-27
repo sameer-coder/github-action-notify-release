@@ -5900,18 +5900,30 @@ function wrappy (fn, cb) {
 const core = __nccwpck_require__(117)
 const github = __nccwpck_require__(228)
 
-async function createIssue(daysSinceRelease) {
+async function createIssue(unreleasedCommits, daysSinceRelease) {
   try {
     const token = core.getInput('github-token', { required: true })
     const octokit = github.getOctokit(token)
 
+    let commitStr = ''
+    for(const commit of unreleasedCommits){
+     commitStr = commitStr + 
+      `Issue: ${commit.message}, Author: ${commit.author}}`
+      + '\n'
+    }
+    let issueString = `Unreleased commits have been found which are pending since ${daysSinceRelease} days, please publish the changes.
+Following are the commits:
+${commitStr}`
+    
+    console.log(issueString)
+
     const issue = await octokit.issues.create({
       ...github.context.repo,
       title: 'Release pending!',
-      body: `Unreleased commits have been found which are pending since ${daysSinceRelease} days, please publish the changes`,
+      body: issueString
     })
 
-    console.log('New issue has been created', issue.data.number)
+    console.log('New issue has been created. Issue No. - ', issue.data.number)
   } catch (error) {
     core.setFailed(error.message)
   }
@@ -5982,7 +5994,7 @@ async function getUnreleasedCommits(latestRelease, daysSinceLastRelease) {
 
   const unreleasedCommits = []
   const lastReleaseDate = new Date(latestRelease.created_at).getTime()
-  let staleDate = new Date()
+  let staleDate = new Date().getTime()
   if(daysSinceLastRelease > 0) {
     staleDate = new Date().getTime() - (daysSinceLastRelease * 24 * 60 * 60 * 1000); //stale days timestamp
   }
@@ -5992,9 +6004,9 @@ async function getUnreleasedCommits(latestRelease, daysSinceLastRelease) {
     const commitDate = new Date(commit.commit.author.date).getTime()
 
   if (lastReleaseDate < commitDate && commitDate < staleDate) {
-    console.log('lastReleaseDate',lastReleaseDate.toString());
-    console.log('commitDate',commitDate.toString());
-    console.log('staleDate',staleDate.toString());
+    console.log('lastReleaseDate',lastReleaseDate);
+    console.log('commitDate',commitDate);
+    console.log('staleDate',staleDate);
     console.log("-----------------------------");
     unreleasedCommits.push({ message: commit.commit.message, author: commit.commit.author.name,
     date: commitDate, url: commit.url});
@@ -6004,14 +6016,9 @@ async function getUnreleasedCommits(latestRelease, daysSinceLastRelease) {
   return unreleasedCommits;
 }
 
-async function getCommitsSinceLastRelease() {
-  return null
-}
-
 module.exports = {
   getLatestRelease,
-  getUnreleasedCommits,
-  getCommitsSinceLastRelease
+  getUnreleasedCommits
 }
 
 /***/ }),
@@ -6195,7 +6202,7 @@ async function run() {
     console.log(JSON.stringify(unreleasedCommits))
 
     if (unreleasedCommits.length) {
-      createIssue(daysSinceLastRelease)
+      createIssue(unreleasedCommits, daysSinceLastRelease)
     }
 
     

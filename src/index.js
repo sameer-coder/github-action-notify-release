@@ -25,7 +25,7 @@ async function run() {
     console.log(JSON.stringify(unreleasedCommits))
 
     if (unreleasedCommits.length) {
-      createIssue(daysSinceLastRelease)
+      createIssue(unreleasedCommits, daysSinceLastRelease)
     }
 
     
