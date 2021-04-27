@@ -6323,7 +6323,7 @@ async function getLatestRelease() {
   return latestRelease
 }
 
-async function getAllCommits(latestRelease) {
+async function getUnreleasedCommits(latestRelease, daysSinceLastRelease) {
   const token = core.getInput('github-token', { required: true })
   const octokit = github.getOctokit(token)
   const { owner, repo } = github.context.repo;
@@ -6335,18 +6335,23 @@ async function getAllCommits(latestRelease) {
   })
 
   console.log(allCommitsResp.data)
-  const allCommits = []
-  const lastReleaseDate = new Date(latestRelease.created_at)
+  const unreleasedCommits = []
+  const lastReleaseDate = new Date(latestRelease.created_at).getTime()
+  const staleDate = new Date().getTime() + (daysSinceLastRelease * 24 * 60 * 60 * 1000); //stale days timestamp
+
 
   for (const commit of allCommitsResp.data) {
-    const commitDate = new Date(commit.commit.committer.date)
-    if (lastReleaseDate < commitDate) {
-      allCommits.push({ message: commit.commit.message, author: commit.author.login,
-      date: commitDate, url: commit.url});
-    }
-  }
+  const commitDate = new Date(commit.commit.author.date).getTime()
+  if (lastReleaseDate < commitDate && commitDate < staleDate) {
+    allCommits.push({ message: commit.commit.message, author: commit.author.login,
+    date: commitDate, url: commit.url});
 
-  return allCommits;
+    console.log(JSON.stringify({ message: commit.commit.message, author: commit.author.login,
+      date: commitDate, url: commit.url}));
+  }
+}
+
+  return unreleasedCommits;
 }
 
 async function getCommitsSinceLastRelease(lastRelease, allCommits) {
@@ -6355,7 +6360,7 @@ async function getCommitsSinceLastRelease(lastRelease, allCommits) {
 
 module.exports = {
   getLatestRelease,
-  getAllCommits,
+  getUnreleasedCommits,
   getCommitsSinceLastRelease
 }
 
@@ -6518,13 +6523,14 @@ var __webpack_exports__ = {};
 const core = __nccwpck_require__(3117)
 const differenceInDays = __nccwpck_require__(6454)
 const { logInfo, logError } = __nccwpck_require__(1607)
-const { getLatestRelease, getAllCommits, getCommitsSinceLastRelease } = __nccwpck_require__(7519)
+const { getLatestRelease, getUnreleasedCommits } = __nccwpck_require__(7519)
 const { createIssue } = __nccwpck_require__(9782)
 
 async function run() {
   try {
     logInfo('========Starting to run the stale release github action ============')
 
+    // TODO: rename
     const daysSinceLastRelease = core.getInput('days-to-stale-release')
 
     console.log(`Days since last release: ${daysSinceLastRelease}`)
@@ -6535,9 +6541,9 @@ async function run() {
     console.log(`Latest release - name:${latestRelease.name}, created:${latestRelease.created_at},
  Tag:${latestRelease.tag_name}, author:${latestRelease.author.login}`)
 
-    const allCommits = await getAllCommits()
+    const unreleasedCommits = await getUnreleasedCommits(latestRelease, daysSinceLastRelease)
 
-    console.log(JSON.stringify(allCommits))
+    console.log(JSON.stringify(unreleasedCommits))
 
     
   } catch (error) {

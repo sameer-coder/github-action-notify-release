@@ -3,13 +3,14 @@
 const core = require('@actions/core')
 const differenceInDays = require('date-fns/differenceInDays')
 const { logInfo, logError } = require('./log')
-const { getLatestRelease, getAllCommits, getCommitsSinceLastRelease } = require('./release')
+const { getLatestRelease, getUnreleasedCommits } = require('./release')
 const { createIssue } = require('./createIssue')
 
 async function run() {
   try {
     logInfo('========Starting to run the stale release github action ============')
 
+    // TODO: rename
     const daysSinceLastRelease = core.getInput('days-to-stale-release')
 
     console.log(`Days since last release: ${daysSinceLastRelease}`)
@@ -20,9 +21,9 @@ async function run() {
     console.log(`Latest release - name:${latestRelease.name}, created:${latestRelease.created_at},
  Tag:${latestRelease.tag_name}, author:${latestRelease.author.login}`)
 
-    const allCommits = await getAllCommits()
+    const unreleasedCommits = await getUnreleasedCommits(latestRelease, daysSinceLastRelease)
 
-    console.log(JSON.stringify(allCommits))
+    console.log(JSON.stringify(unreleasedCommits))
 
     
   } catch (error) {

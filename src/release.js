@@ -21,7 +21,7 @@ async function getLatestRelease() {
   return latestRelease
 }
 
-async function getAllCommits(latestRelease) {
+async function getUnreleasedCommits(latestRelease, daysSinceLastRelease) {
   const token = core.getInput('github-token', { required: true })
   const octokit = github.getOctokit(token)
   const { owner, repo } = github.context.repo;
@@ -33,18 +33,23 @@ async function getAllCommits(latestRelease) {
   })
 
   console.log(allCommitsResp.data)
-  const allCommits = []
-  const lastReleaseDate = new Date(latestRelease.created_at)
+  const unreleasedCommits = []
+  const lastReleaseDate = new Date(latestRelease.created_at).getTime()
+  const staleDate = new Date().getTime() + (daysSinceLastRelease * 24 * 60 * 60 * 1000); //stale days timestamp
+
 
   for (const commit of allCommitsResp.data) {
-    const commitDate = new Date(commit.commit.committer.date)
-    if (lastReleaseDate < commitDate) {
-      allCommits.push({ message: commit.commit.message, author: commit.author.login,
-      date: commitDate, url: commit.url});
-    }
-  }
+  const commitDate = new Date(commit.commit.author.date).getTime()
+  if (lastReleaseDate < commitDate && commitDate < staleDate) {
+    allCommits.push({ message: commit.commit.message, author: commit.author.login,
+    date: commitDate, url: commit.url});
 
-  return allCommits;
+    console.log(JSON.stringify({ message: commit.commit.message, author: commit.author.login,
+      date: commitDate, url: commit.url}));
+  }
+}
+
+  return unreleasedCommits;
 }
 
 async function getCommitsSinceLastRelease(lastRelease, allCommits) {
@@ -53,6 +58,6 @@ async function getCommitsSinceLastRelease(lastRelease, allCommits) {
 
 module.exports = {
   getLatestRelease,
-  getAllCommits,
+  getUnreleasedCommits,
   getCommitsSinceLastRelease
 }
