@@ -3,8 +3,7 @@
 const core = require('@actions/core')
 const differenceInDays = require('date-fns/differenceInDays')
 const { logInfo, logError } = require('./log')
-const { getLatestRelease } = require('./getLastReleaseDate')
-const { getLastRepoUpdate } = require('./getLastRepoUpdate')
+const { getLatestRelease, getAllCommits, getCommitsSinceLastRelease } = require('./release')
 const { createIssue } = require('./createIssue')
 
 async function run() {
@@ -19,20 +18,13 @@ async function run() {
     const latestRelease = await getLatestRelease()
 
     console.log(`Latest release - name:${latestRelease.name}, created:${latestRelease.created_at},
- Tag:${latestRelease.tag_name}, author:${latestRelease.author}`)
+ Tag:${latestRelease.tag_name}, author:${latestRelease.author.login}`)
 
-    // const lastRepoUpdate = await getLastRepoUpdate()
+    const allCommits = await getAllCommits()
 
-    // const daysSinceRelease = differenceInDays(lastRepoUpdate, lastReleaseDate)
-
-    // logInfo(`${daysSinceRelease} Days since last release`)
-
-    // const shouldCreateIssue = daysToStaleRelease < daysSinceRelease
-
-    // if (shouldCreateIssue) {
-    //   createIssue(daysSinceRelease)
-    // }
+    
   } catch (error) {
+    console.log(error.message)
     core.setFailed(error.message)
   }
 }

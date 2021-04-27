@@ -6275,81 +6275,6 @@ exports.createIssue = createIssue
 
 /***/ }),
 
-/***/ 4960:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-const core = __nccwpck_require__(3117)
-const { logInfo } = __nccwpck_require__(1607)
-const github = __nccwpck_require__(2228)
-
-
-async function getLatestRelease() {
-
-  try {
-    const token = core.getInput('github-token', { required: true })
-    const octokit = github.getOctokit(token)
-
-    // Get owner and repo from context of payload that triggered the action
-    const { owner, repo } = github.context.repo;
-
-    const allReleasesResp = await octokit.request(`GET /repos/{owner}/{repo}/releases`, {
-      owner,
-      repo
-    })
-
-    const latestRelease = (allReleasesResp && allReleasesResp.data && allReleasesResp.data.length) ? allReleasesResp.data[0] : null
-    if (!latestRelease) throw new Error('Cannot find the latest release')
-
-    return latestRelease
-  } catch (error) {
-    console.log(error);
-    core.setFailed(error.message);
-  }
-}
-
-exports.getLatestRelease = getLatestRelease
-
-
-/***/ }),
-
-/***/ 3186:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-const core = __nccwpck_require__(3117)
-const github = __nccwpck_require__(2228)
-const { logInfo } = __nccwpck_require__(1607)
-
-async function getLastRepoUpdate() {
-  try {
-    const token = core.getInput('github-token', { required: true })
-    const octokit = github.getOctokit(token)
-
-    const { data: { updated_at } } = await octokit.rest.repos.get({
-      owner: 'estherixz',
-      repo: 'github-action-notify-release',
-    });
-
-    const lastUpdate = new Date(updated_at)
-
-    logInfo(`Last repo update ${lastUpdate}`)
-
-    return lastUpdate
-  } catch (error) {
-    core.setFailed(error.message)
-  }
-}
-
-exports.getLastRepoUpdate = getLastRepoUpdate
-
-
-/***/ }),
-
 /***/ 1607:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
@@ -6368,6 +6293,62 @@ exports.logError = log(error)
 exports.logInfo = log(info)
 exports.logWarning = log(warning)
 
+
+/***/ }),
+
+/***/ 7519:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+const core = __nccwpck_require__(3117)
+const { logInfo } = __nccwpck_require__(1607)
+const github = __nccwpck_require__(2228)
+
+
+async function getLatestRelease() {
+  const token = core.getInput('github-token', { required: true })
+  const octokit = github.getOctokit(token)
+
+  // Get owner and repo from context of payload that triggered the action
+  const { owner, repo } = github.context.repo;
+
+  const allReleasesResp = await octokit.request(`GET /repos/{owner}/{repo}/releases`, {
+    owner,
+    repo
+  })
+
+  const latestRelease = (allReleasesResp && allReleasesResp.data && allReleasesResp.data.length) ? allReleasesResp.data[0] : null
+  if (!latestRelease) throw new Error('Cannot find the latest release')
+
+  return latestRelease
+}
+
+async function getAllCommits() {
+  const token = core.getInput('github-token', { required: true })
+  const octokit = github.getOctokit(token)
+
+  // TODO: extract this out
+  const allCommitsResp = await octokit.request('GET /repos/{owner}/{repo}/commits', {
+    owner,
+    repo
+  })
+
+  console.log(allCommitsResp.data)
+
+  return null
+}
+
+async function getCommitsSinceLastRelease(lastRelease, allCommits) {
+  return null
+}
+
+module.exports = {
+  getLatestRelease,
+  getAllCommits,
+  getCommitsSinceLastRelease
+}
 
 /***/ }),
 
@@ -6528,8 +6509,7 @@ var __webpack_exports__ = {};
 const core = __nccwpck_require__(3117)
 const differenceInDays = __nccwpck_require__(6454)
 const { logInfo, logError } = __nccwpck_require__(1607)
-const { getLatestRelease } = __nccwpck_require__(4960)
-const { getLastRepoUpdate } = __nccwpck_require__(3186)
+const { getLatestRelease, getAllCommits, getCommitsSinceLastRelease } = __nccwpck_require__(7519)
 const { createIssue } = __nccwpck_require__(9782)
 
 async function run() {
@@ -6544,20 +6524,13 @@ async function run() {
     const latestRelease = await getLatestRelease()
 
     console.log(`Latest release - name:${latestRelease.name}, created:${latestRelease.created_at},
- Tag:${latestRelease.tag_name}, author:${latestRelease.author}`)
+ Tag:${latestRelease.tag_name}, author:${latestRelease.author.login}`)
 
-    // const lastRepoUpdate = await getLastRepoUpdate()
+    const allCommits = await getAllCommits()
 
-    // const daysSinceRelease = differenceInDays(lastRepoUpdate, lastReleaseDate)
-
-    // logInfo(`${daysSinceRelease} Days since last release`)
-
-    // const shouldCreateIssue = daysToStaleRelease < daysSinceRelease
-
-    // if (shouldCreateIssue) {
-    //   createIssue(daysSinceRelease)
-    // }
+    
   } catch (error) {
+    console.log(error.message)
     core.setFailed(error.message)
   }
 }
