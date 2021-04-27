@@ -6323,7 +6323,7 @@ async function getLatestRelease() {
   return latestRelease
 }
 
-async function getAllCommits() {
+async function getAllCommits(latestRelease) {
   const token = core.getInput('github-token', { required: true })
   const octokit = github.getOctokit(token)
   const { owner, repo } = github.context.repo;
@@ -6335,8 +6335,18 @@ async function getAllCommits() {
   })
 
   console.log(allCommitsResp.data)
+  const allCommits = []
+  const lastReleaseDate = new Date(latestRelease.created_at)
 
-  return null
+  for (const commit of allCommitsResp.data) {
+    const commitDate = new Date(commit.commit.committer.date)
+    if (lastReleaseDate < commitDate) {
+      allCommits.push({ message: commit.commit.message, author: commit.author.login,
+      date: commitDate, url: commit.url});
+    }
+  }
+
+  return allCommits;
 }
 
 async function getCommitsSinceLastRelease(lastRelease, allCommits) {
@@ -6526,6 +6536,8 @@ async function run() {
  Tag:${latestRelease.tag_name}, author:${latestRelease.author.login}`)
 
     const allCommits = await getAllCommits()
+
+    console.log(JSON.stringify(allCommits))
 
     
   } catch (error) {

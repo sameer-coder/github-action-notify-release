@@ -22,6 +22,8 @@ async function run() {
 
     const allCommits = await getAllCommits()
 
+    console.log(JSON.stringify(allCommits))
+
     
   } catch (error) {
     core.setFailed(error.message)
