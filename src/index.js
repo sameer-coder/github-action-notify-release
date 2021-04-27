@@ -10,26 +10,24 @@ const { createIssue } = require('./createIssue')
 async function run() {
   try {
     logInfo('========Starting to run the stale release github action ============')
-    
+
     const daysToStaleRelease = core.getInput('days-to-stale-release')
 
-    const { lastReleaseDate, npmError, npmPckNotFound } = await getLastReleaseDate()
+    const latestRelease = await getLastReleaseDate()
 
-    if (npmPckNotFound) return logError('npm package not found')
+    logInfo(`Latest release is ${latestRelease}`)
 
-    if (npmError) return logError(npmError)
+    // const lastRepoUpdate = await getLastRepoUpdate()
 
-    const lastRepoUpdate = await getLastRepoUpdate()
+    // const daysSinceRelease = differenceInDays(lastRepoUpdate, lastReleaseDate)
 
-    const daysSinceRelease = differenceInDays(lastRepoUpdate, lastReleaseDate)
+    // logInfo(`${daysSinceRelease} Days since last release`)
 
-    logInfo(`${daysSinceRelease} Days since last release`)
+    // const shouldCreateIssue = daysToStaleRelease < daysSinceRelease
 
-    const shouldCreateIssue = daysToStaleRelease < daysSinceRelease
-
-    if (shouldCreateIssue) {
-      createIssue(daysSinceRelease)
-    }
+    // if (shouldCreateIssue) {
+    //   createIssue(daysSinceRelease)
+    // }
   } catch (error) {
     core.setFailed(error.message)
   }

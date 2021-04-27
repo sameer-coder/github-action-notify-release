@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/estherixz/github-action-notify-release.git"
+    "url": "git+https://github.com/sameer-coder/github-action-notify-release.git"
   },
-  "author": "Esther Saimpou",
+  "author": "Sameer Srivastava",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/estherixz/github-action-notify-release/issues"
+    "url": "https://github.com/sameer-coder/github-action-notify-release/issues"
   },
-  "homepage": "https://github.com/estherixz/github-action-notify-release#readme",
+  "homepage": "https://github.com/sameer-coder/github-action-notify-release#readme",
   "dependencies": {
     "@actions/core": "^1.2.7",
     "@actions/exec": "^1.0.4",
