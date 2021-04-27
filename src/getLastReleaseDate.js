@@ -22,9 +22,6 @@ async function getLatestRelease() {
     const latestRelease = (allReleasesResp && allReleasesResp.data && allReleasesResp.data.length) ? allReleasesResp.data[0] : null
     if (!latestRelease) throw new Error('Cannot find the latest release')
 
-    console.log(`Latest release - name:${latestRelease.name}, created:${latestRelease.created_at},
- Tag:${latestRelease.tag_name}, author:${latestRelease.author}`)
-
     return latestRelease
   } catch (error) {
     console.log(error);
