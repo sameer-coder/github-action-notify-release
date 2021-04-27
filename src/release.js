@@ -31,7 +31,6 @@ async function getUnreleasedCommits(latestRelease, daysSinceLastRelease) {
     repo
   })
 
-  console.log(allCommitsResp.data)
   const unreleasedCommits = []
   const lastReleaseDate = new Date(latestRelease.created_at).getTime()
   const staleDate = new Date().getTime() + (daysSinceLastRelease * 24 * 60 * 60 * 1000); //stale days timestamp
@@ -39,12 +38,13 @@ async function getUnreleasedCommits(latestRelease, daysSinceLastRelease) {
 
   for (const commit of allCommitsResp.data) {
   const commitDate = new Date(commit.commit.author.date).getTime()
+  console.log({lastReleaseDate});
+  console.log({commitDate});
+  console.log({staleDate});
+  console.log("-----------------------------");
   if (lastReleaseDate < commitDate && commitDate < staleDate) {
-    unreleasedCommits.push({ message: commit.commit.message, author: commit.commit.author.login,
+    unreleasedCommits.push({ message: commit.commit.message, author: commit.commit.author.name,
     date: commitDate, url: commit.url});
-
-    console.log(JSON.stringify({ message: commit.commit.message, author: commit.commit.author.login,
-      date: commitDate, url: commit.url}));
   }
 }
 
