@@ -1,10 +1,9 @@
 'use strict'
 
 const core = require('@actions/core')
-const packageJson = require('../package.json')
 const { exec } = require('./exec')
 const { logInfo } = require('./log')
-const { github, context } = require("@actions/github")
+const github = require("@actions/github")
 
 async function getLastReleaseDate() {
   try {
@@ -44,7 +43,7 @@ async function getAllReleases() {
     const octokit = github.getOctokit(token)
 
     // Get owner and repo from context of payload that triggered the action
-    const { owner, repo } = context.repo;
+    const { owner, repo } = github.context.repo;
 
     const allReleases = await octokit.request(`GET /repos/{owner}/{repo}/releases`, {
       owner,
