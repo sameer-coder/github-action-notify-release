@@ -7511,10 +7511,9 @@ exports.exec = exec
 
 
 const core = __nccwpck_require__(3117)
-const packageJson = __nccwpck_require__(306)
 const { exec } = __nccwpck_require__(2849)
 const { logInfo } = __nccwpck_require__(1607)
-const { github, context } = __nccwpck_require__(2228)
+const github = __nccwpck_require__(2228)
 
 async function getLastReleaseDate() {
   try {
@@ -7554,7 +7553,7 @@ async function getAllReleases() {
     const octokit = github.getOctokit(token)
 
     // Get owner and repo from context of payload that triggered the action
-    const { owner, repo } = context.repo;
+    const { owner, repo } = github.context.repo;
 
     const allReleases = await octokit.request(`GET /repos/{owner}/{repo}/releases`, {
       owner,
@@ -7637,14 +7636,6 @@ exports.logWarning = log(warning)
 
 module.exports = eval("require")("encoding");
 
-
-/***/ }),
-
-/***/ 306:
-/***/ ((module) => {
-
-"use strict";
-module.exports = JSON.parse('{"name":"github-action-notify-release","version":"1.0.0","description":"Github action for notifying of a pending release","main":"dist/index.js","scripts":{"build":"ncc build src --license licenses.txt","lint":"eslint ."},"repository":{"type":"git","url":"git+https://github.com/sameer-coder/github-action-notify-release.git"},"author":"Sameer Srivastava","license":"ISC","bugs":{"url":"https://github.com/sameer-coder/github-action-notify-release/issues"},"homepage":"https://github.com/sameer-coder/github-action-notify-release#readme","dependencies":{"@actions/core":"^1.2.7","@actions/exec":"^1.0.4","@actions/github":"^4.0.0","date-fns":"^2.21.1","ncc":"^0.3.6"},"devDependencies":{"@vercel/ncc":"^0.28.3","eslint":"^7.24.0"}}');
 
 /***/ }),
 
