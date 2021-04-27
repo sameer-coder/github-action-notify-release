@@ -33,7 +33,10 @@ async function getUnreleasedCommits(latestRelease, daysSinceLastRelease) {
 
   const unreleasedCommits = []
   const lastReleaseDate = new Date(latestRelease.created_at).getTime()
-  const staleDate = new Date().getTime() - (daysSinceLastRelease * 24 * 60 * 60 * 1000); //stale days timestamp
+  let staleDate = new Date()
+  if(daysSinceLastRelease > 0) {
+    staleDate = new Date().getTime() - (daysSinceLastRelease * 24 * 60 * 60 * 1000); //stale days timestamp
+  }
 
 
   for (const commit of allCommitsResp.data) {

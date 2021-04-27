@@ -1,10 +1,9 @@
 'use strict'
 
 const core = require('@actions/core')
-// const differenceInDays = require('date-fns/differenceInDays')
 const { logInfo } = require('./log')
 const { getLatestRelease, getUnreleasedCommits } = require('./release')
-// const { createIssue } = require('./createIssue')
+const { createIssue } = require('./createIssue')
 
 async function run() {
   try {
@@ -24,6 +23,10 @@ async function run() {
     const unreleasedCommits = await getUnreleasedCommits(latestRelease, daysSinceLastRelease)
 
     console.log(JSON.stringify(unreleasedCommits))
+
+    if (unreleasedCommits.length) {
+      createIssue(daysSinceLastRelease)
+    }
 
     
   } catch (error) {

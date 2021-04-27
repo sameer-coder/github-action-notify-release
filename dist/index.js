@@ -5891,6 +5891,37 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
+/***/ 782:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+const core = __nccwpck_require__(117)
+const github = __nccwpck_require__(228)
+
+async function createIssue(daysSinceRelease) {
+  try {
+    const token = core.getInput('github-token', { required: true })
+    const octokit = github.getOctokit(token)
+
+    const issue = await octokit.issues.create({
+      ...github.context.repo,
+      title: 'Release pending!',
+      body: `Unreleased commits have been found which are pending since ${daysSinceRelease} days, please publish the changes`,
+    })
+
+    console.log('New issue has been created', issue.data.number)
+  } catch (error) {
+    core.setFailed(error.message)
+  }
+}
+
+exports.createIssue = createIssue
+
+
+/***/ }),
+
 /***/ 607:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
@@ -5951,7 +5982,10 @@ async function getUnreleasedCommits(latestRelease, daysSinceLastRelease) {
 
   const unreleasedCommits = []
   const lastReleaseDate = new Date(latestRelease.created_at).getTime()
-  const staleDate = new Date().getTime() - (daysSinceLastRelease * 24 * 60 * 60 * 1000); //stale days timestamp
+  let staleDate = new Date()
+  if(daysSinceLastRelease > 0) {
+    staleDate = new Date().getTime() - (daysSinceLastRelease * 24 * 60 * 60 * 1000); //stale days timestamp
+  }
 
 
   for (const commit of allCommitsResp.data) {
@@ -6137,10 +6171,9 @@ var __webpack_exports__ = {};
 
 
 const core = __nccwpck_require__(117)
-// const differenceInDays = require('date-fns/differenceInDays')
 const { logInfo } = __nccwpck_require__(607)
 const { getLatestRelease, getUnreleasedCommits } = __nccwpck_require__(519)
-// const { createIssue } = require('./createIssue')
+const { createIssue } = __nccwpck_require__(782)
 
 async function run() {
   try {
@@ -6160,6 +6193,10 @@ async function run() {
     const unreleasedCommits = await getUnreleasedCommits(latestRelease, daysSinceLastRelease)
 
     console.log(JSON.stringify(unreleasedCommits))
+
+    if (unreleasedCommits.length) {
+      createIssue(daysSinceLastRelease)
+    }
 
     
   } catch (error) {
