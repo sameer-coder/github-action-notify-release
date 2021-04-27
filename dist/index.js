@@ -5908,11 +5908,12 @@ async function createIssue(unreleasedCommits, daysSinceRelease) {
     let commitStr = ''
     for(const commit of unreleasedCommits){
      commitStr = commitStr + 
-      `Issue: ${commit.message}, Author: ${commit.author}}`
+      `Issue: ${commit.message},   Author: ${commit.author}`
       + '\n'
     }
     let issueString = `Unreleased commits have been found which are pending since ${daysSinceRelease} days, please publish the changes.
-Following are the commits:
+
+    **Following are the commits:**
 ${commitStr}`
     
     console.log(issueString)
