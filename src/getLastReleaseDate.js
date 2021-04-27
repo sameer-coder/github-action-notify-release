@@ -4,7 +4,7 @@ const core = require('@actions/core')
 const packageJson = require('../package.json')
 const { exec } = require('./exec')
 const { logInfo } = require('./log')
-const { GitHub, context } = require("@actions/github")
+const { github, context } = require("@actions/github")
 
 async function getLastReleaseDate() {
   try {
@@ -41,7 +41,6 @@ async function getAllReleases() {
 
   try {
     const token = core.getInput('github-token', { required: true })
-    const github = new GitHub(token);
     const octokit = github.getOctokit(token)
 
     // Get owner and repo from context of payload that triggered the action
