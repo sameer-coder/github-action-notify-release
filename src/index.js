@@ -24,7 +24,6 @@ async function run() {
 
     
   } catch (error) {
-    console.log(error.message)
     core.setFailed(error.message)
   }
 }
