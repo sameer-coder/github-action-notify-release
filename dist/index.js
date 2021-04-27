@@ -5955,12 +5955,13 @@ async function getUnreleasedCommits(latestRelease, daysSinceLastRelease) {
 
 
   for (const commit of allCommitsResp.data) {
-  const commitDate = new Date(commit.commit.author.date).getTime()
-  console.log({lastReleaseDate});
-  console.log({commitDate});
-  console.log({staleDate});
-  console.log("-----------------------------");
+    const commitDate = new Date(commit.commit.author.date).getTime()
+
   if (lastReleaseDate < commitDate && commitDate < staleDate) {
+    console.log('lastReleaseDate',lastReleaseDate.toString());
+    console.log('commitDate',commitDate.toString());
+    console.log('staleDate',staleDate.toString());
+    console.log("-----------------------------");
     unreleasedCommits.push({ message: commit.commit.message, author: commit.commit.author.name,
     date: commitDate, url: commit.url});
   }
