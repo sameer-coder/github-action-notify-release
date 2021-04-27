@@ -5951,7 +5951,7 @@ async function getUnreleasedCommits(latestRelease, daysSinceLastRelease) {
 
   const unreleasedCommits = []
   const lastReleaseDate = new Date(latestRelease.created_at).getTime()
-  const staleDate = new Date().getTime() + (daysSinceLastRelease * 24 * 60 * 60 * 1000); //stale days timestamp
+  const staleDate = new Date().getTime() - (daysSinceLastRelease * 24 * 60 * 60 * 1000); //stale days timestamp
 
 
   for (const commit of allCommitsResp.data) {
