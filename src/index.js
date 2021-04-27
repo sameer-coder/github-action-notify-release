@@ -9,6 +9,8 @@ const { createIssue } = require('./createIssue')
 
 async function run() {
   try {
+    logInfo('========Starting to run the stale release github action ============')
+    
     const daysToStaleRelease = core.getInput('days-to-stale-release')
 
     const { lastReleaseDate, npmError, npmPckNotFound } = await getLastReleaseDate()
