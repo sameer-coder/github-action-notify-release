@@ -15,9 +15,10 @@ async function createIssue(token, issueTitle, issueBody) {
       title: issueTitle,
       body: issueBody
     });
-    console.log(response);
+    console.log({response});
     return response;
   } catch (error) {
+    console.log({error});
     core.setFailed(error.message);
   }
 }
