@@ -27,6 +27,8 @@ async function getUnreleasedCommits(token, latestRelease, daysToIgnore) {
     repo
   });
 
+  console.log(JSON.stringify(allCommitsResp.data))
+
   if (!allCommitsResp || !allCommitsResp.data || !allCommitsResp.data.length) throw new Error('Error fetching commits');
   if (!latestRelease || !latestRelease.created_at) throw new Error('Latest release doesnt have a created_at date');
   if (!daysToIgnore) daysToIgnore = 0;
