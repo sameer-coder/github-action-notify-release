@@ -13,8 +13,8 @@ async function run() {
 
     const daysToIgnore = core.getInput('days-to-ignore');
 
-    logInfo('Days since last release: ', daysToIgnore);
-    logInfo('Fetching latest release......');
+    logInfo(`Days since last release: ${daysToIgnore}`);
+    logInfo(`Fetching latest release......`);
 
     const latestRelease = await getLatestRelease(token);
 
