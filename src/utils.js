@@ -10,15 +10,12 @@ async function createIssue(token, issueTitle, issueBody) {
 
     logInfo(issueBody);
 
-    const response = await octokit.issues.create({
+    return await octokit.issues.create({
       ...github.context.repo,
       title: issueTitle,
       body: issueBody
     });
-    console.log({response});
-    return response;
   } catch (error) {
-    console.log({error});
     core.setFailed(error.message);
   }
 }

@@ -37,9 +37,8 @@ Tag:${latestRelease.tag_name}, author:${latestRelease.author.login}`);
   **Following are the commits:**
   ${commitStr}`;
       const issueTitle = 'Release pending!';
-      const issueNo = await createIssue({ token, unreleasedCommits, daysToIgnore, issueTitle, issueBody });
-      // logInfo(`New issue has been created. Issue No. - ${JSON.stringify(issueNo)}`);
-      console.log(issueNo);
+      const issueNo = await createIssue(token, issueTitle, issueBody);
+      logInfo(`New issue has been created. Issue No. - ${JSON.stringify(issueNo)}`);
     } else {
       logInfo('No pending commits found');
     }

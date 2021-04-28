@@ -5990,15 +5990,12 @@ async function createIssue(token, issueTitle, issueBody) {
 
     logInfo(issueBody);
 
-    const response = await octokit.issues.create({
+    return await octokit.issues.create({
       ...github.context.repo,
       title: issueTitle,
       body: issueBody
     });
-    console.log({response});
-    return response;
   } catch (error) {
-    console.log({error});
     core.setFailed(error.message);
   }
 }
@@ -6201,9 +6198,8 @@ Tag:${latestRelease.tag_name}, author:${latestRelease.author.login}`);
   **Following are the commits:**
   ${commitStr}`;
       const issueTitle = 'Release pending!';
-      const issueNo = await createIssue({ token, unreleasedCommits, daysToIgnore, issueTitle, issueBody });
-      // logInfo(`New issue has been created. Issue No. - ${JSON.stringify(issueNo)}`);
-      console.log(issueNo);
+      const issueNo = await createIssue(token, issueTitle, issueBody);
+      logInfo(`New issue has been created. Issue No. - ${JSON.stringify(issueNo)}`);
     } else {
       logInfo('No pending commits found');
     }
