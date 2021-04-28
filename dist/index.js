@@ -6202,10 +6202,11 @@ Tag:${latestRelease.tag_name}, author:${latestRelease.author.login}`);
   **Following are the commits:**
   ${commitStr}`;
       const issueTitle = 'Release pending!';
-      const issueNo = createIssue({token, unreleasedCommits, daysToIgnore, issueTitle, issueBody });
+      const issueNo = await createIssue({ token, unreleasedCommits, daysToIgnore, issueTitle, issueBody });
       logInfo(`New issue has been created. Issue No. - ${JSON.stringify(issueNo.data)}`);
+    } else {
+      logInfo('No pending commits found');
     }
-    logInfo('No pending commits found');
 
   } catch (error) {
     core.setFailed(error.message);
