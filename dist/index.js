@@ -6184,7 +6184,7 @@ async function run() {
     const latestRelease = await getLatestRelease(token);
 
     logInfo(`Latest release - name:${latestRelease.name}, created:${latestRelease.created_at},
- Tag:${latestRelease.tag_name}, author:${latestRelease.author.login}`);
+Tag:${latestRelease.tag_name}, author:${latestRelease.author.login}`);
 
     const unreleasedCommits = await getUnreleasedCommits(token, latestRelease, daysToIgnore);
 
@@ -6203,7 +6203,7 @@ async function run() {
   ${commitStr}`;
       const issueTitle = 'Release pending!';
       const issueNo = createIssue({token, unreleasedCommits, daysToIgnore, issueTitle, issueBody });
-      logInfo('New issue has been created. Issue No. - ', issueNo.data.number);
+      logInfo(`New issue has been created. Issue No. - ${JSON.stringify(issueNo.data)}`);
     }
     logInfo('No pending commits found');
 
