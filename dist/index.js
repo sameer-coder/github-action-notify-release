@@ -5891,50 +5891,6 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
-/***/ 782:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-const core = __nccwpck_require__(117)
-const github = __nccwpck_require__(228)
-
-async function createIssue(unreleasedCommits, daysSinceRelease) {
-  try {
-    const token = core.getInput('github-token', { required: true })
-    const octokit = github.getOctokit(token)
-
-    let commitStr = ''
-    for(const commit of unreleasedCommits){
-     commitStr = commitStr + 
-      `Issue: ${commit.message},   Author: ${commit.author}`
-      + '\n'
-    }
-    let issueString = `Unreleased commits have been found which are pending since ${daysSinceRelease} days, please publish the changes.
-
-    **Following are the commits:**
-${commitStr}`
-    
-    console.log(issueString)
-
-    const issue = await octokit.issues.create({
-      ...github.context.repo,
-      title: 'Release pending!',
-      body: issueString
-    })
-
-    console.log('New issue has been created. Issue No. - ', issue.data.number)
-  } catch (error) {
-    core.setFailed(error.message)
-  }
-}
-
-exports.createIssue = createIssue
-
-
-/***/ }),
-
 /***/ 607:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
@@ -5944,14 +5900,14 @@ exports.createIssue = createIssue
 const { debug, error, info, warning } = __nccwpck_require__(117)
 
 const stringify = (msg) =>
-  typeof msg === 'string' ? msg : msg.stack || msg.toString()
+  typeof msg === 'string' ? msg : msg.stack || msg.toString();
 
-const log = (logger) => (message) => logger(stringify(message))
+const log = (logger) => (message) => logger(stringify(message));
 
-exports.logDebug = log(debug)
-exports.logError = log(error)
-exports.logInfo = log(info)
-exports.logWarning = log(warning)
+exports.logDebug = log(debug);
+exports.logError = log(error);
+exports.logInfo = log(info);
+exports.logWarning = log(warning);
 
 
 /***/ }),
@@ -5962,57 +5918,54 @@ exports.logWarning = log(warning)
 "use strict";
 
 
-const core = __nccwpck_require__(117)
-const github = __nccwpck_require__(228)
+const github = __nccwpck_require__(228);
 
-
-async function getLatestRelease() {
-  const token = core.getInput('github-token', { required: true })
-  const octokit = github.getOctokit(token)
+async function getLatestRelease(token) {
+  const octokit = github.getOctokit(token);
   const { owner, repo } = github.context.repo;
 
   const allReleasesResp = await octokit.request(`GET /repos/{owner}/{repo}/releases`, {
     owner,
     repo
-  })
+  });
 
-  const latestRelease = (allReleasesResp && allReleasesResp.data && allReleasesResp.data.length) ? allReleasesResp.data[0] : null
-  if (!latestRelease) throw new Error('Cannot find the latest release')
+  const latestRelease = (allReleasesResp && allReleasesResp.data && allReleasesResp.data.length) ? allReleasesResp.data[0] : null;
+  if (!latestRelease) throw new Error('Cannot find the latest release');
 
-  return latestRelease
+  return latestRelease;
 }
 
-async function getUnreleasedCommits(latestRelease, daysSinceLastRelease) {
-  const token = core.getInput('github-token', { required: true })
-  const octokit = github.getOctokit(token)
+async function getUnreleasedCommits(token, latestRelease, daysToIgnore) {
+  const octokit = github.getOctokit(token);
   const { owner, repo } = github.context.repo;
 
-  // TODO: extract this out
+  // TODO: extract this
   const allCommitsResp = await octokit.request('GET /repos/{owner}/{repo}/commits', {
     owner,
     repo
-  })
+  });
 
-  const unreleasedCommits = []
-  const lastReleaseDate = new Date(latestRelease.created_at).getTime()
-  let staleDate = new Date().getTime()
-  if(daysSinceLastRelease > 0) {
-    staleDate = new Date().getTime() - (daysSinceLastRelease * 24 * 60 * 60 * 1000); //stale days timestamp
+  if (!allCommitsResp || !allCommitsResp.data || !allCommitsResp.data.length) throw new Error('Error fetching commits');
+  if (!latestRelease || !latestRelease.created_at) throw new Error('Latest release doesnt have a created_at date');
+  if (!daysToIgnore) daysToIgnore = 0;
+
+  const unreleasedCommits = [];
+  const lastReleaseDate = new Date(latestRelease.created_at).getTime();
+  let staleDate = new Date().getTime();
+  if (daysToIgnore > 0) {
+    staleDate = new Date().getTime() - (daysToIgnore * 24 * 60 * 60 * 1000);
   }
-
 
   for (const commit of allCommitsResp.data) {
-    const commitDate = new Date(commit.commit.author.date).getTime()
+    const commitDate = new Date(commit.commit.author.date).getTime();
 
-  if (lastReleaseDate < commitDate && commitDate < staleDate) {
-    console.log('lastReleaseDate',lastReleaseDate);
-    console.log('commitDate',commitDate);
-    console.log('staleDate',staleDate);
-    console.log("-----------------------------");
-    unreleasedCommits.push({ message: commit.commit.message, author: commit.commit.author.name,
-    date: commitDate, url: commit.url});
+    if (lastReleaseDate < commitDate && commitDate < staleDate) {
+      unreleasedCommits.push({
+        message: commit.commit.message, author: commit.commit.author.name,
+        date: commitDate, url: commit.url
+      });
+    }
   }
-}
 
   return unreleasedCommits;
 }
@@ -6021,6 +5974,40 @@ module.exports = {
   getLatestRelease,
   getUnreleasedCommits
 }
+
+/***/ }),
+
+/***/ 832:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+const core = __nccwpck_require__(117);
+const github = __nccwpck_require__(228);
+const { logInfo } = __nccwpck_require__(607);
+
+async function createIssue(token, issueTitle, issueBody) {
+  try {
+    const octokit = github.getOctokit(token);
+
+    logInfo(issueBody);
+
+    return await octokit.issues.create({
+      ...github.context.repo,
+      title: issueTitle,
+      body: issueBody
+    });
+
+  } catch (error) {
+    core.setFailed(error.message);
+  }
+}
+
+module.exports = {
+  createIssue,
+}
+
 
 /***/ }),
 
@@ -6178,41 +6165,54 @@ var __webpack_exports__ = {};
 "use strict";
 
 
-const core = __nccwpck_require__(117)
-const { logInfo } = __nccwpck_require__(607)
-const { getLatestRelease, getUnreleasedCommits } = __nccwpck_require__(519)
-const { createIssue } = __nccwpck_require__(782)
+const core = __nccwpck_require__(117);
+const { logInfo } = __nccwpck_require__(607);
+const { getLatestRelease, getUnreleasedCommits } = __nccwpck_require__(519);
+const { createIssue } = __nccwpck_require__(832);
 
 async function run() {
   try {
-    logInfo('========Starting to run the stale release github action ============')
+    logInfo('========Starting to run the stale release github action ============');
 
-    // TODO: rename
-    const daysSinceLastRelease = core.getInput('days-to-stale-release')
+    const token = core.getInput('github-token', { required: true });
 
-    console.log(`Days since last release: ${daysSinceLastRelease}`)
-    console.log(`Fetching latest release......`)
+    const daysToIgnore = core.getInput('days-to-ignore');
 
-    const latestRelease = await getLatestRelease()
+    logInfo(`Days since last release: ${daysToIgnore}`);
+    logInfo(`Fetching latest release......`);
 
-    console.log(`Latest release - name:${latestRelease.name}, created:${latestRelease.created_at},
- Tag:${latestRelease.tag_name}, author:${latestRelease.author.login}`)
+    const latestRelease = await getLatestRelease(token);
 
-    const unreleasedCommits = await getUnreleasedCommits(latestRelease, daysSinceLastRelease)
+    logInfo(`Latest release - name:${latestRelease.name}, created:${latestRelease.created_at},
+ Tag:${latestRelease.tag_name}, author:${latestRelease.author.login}`);
 
-    console.log(JSON.stringify(unreleasedCommits))
+    const unreleasedCommits = await getUnreleasedCommits(token, latestRelease, daysToIgnore);
+
+    logInfo(JSON.stringify(unreleasedCommits));
 
     if (unreleasedCommits.length) {
-      createIssue(unreleasedCommits, daysSinceLastRelease)
+      let commitStr = '';
+      for (const commit of unreleasedCommits) {
+        commitStr = commitStr +
+          `Issue: ${commit.message},   Author: ${commit.author}`
+          + '\n';
+      }
+      const issueBody = `Unreleased commits have been found which are pending since ${daysToIgnore} days, please publish the changes.
+  
+  **Following are the commits:**
+  ${commitStr}`;
+      const issueTitle = 'Release pending!';
+      const issueNo = createIssue({token, unreleasedCommits, daysToIgnore, issueTitle, issueBody });
+      logInfo('New issue has been created. Issue No. - ', issueNo.data.number);
     }
+    logInfo('No pending commits found');
 
-    
   } catch (error) {
-    core.setFailed(error.message)
+    core.setFailed(error.message);
   }
 }
 
-run()
+run();
 
 })();
 
