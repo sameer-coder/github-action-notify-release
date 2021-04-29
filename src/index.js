@@ -23,8 +23,6 @@ Tag:${latestRelease.tag_name}, author:${latestRelease.author.login}`);
 
     const unreleasedCommits = await getUnreleasedCommits(token, latestRelease, daysToIgnore);
 
-    logInfo(JSON.stringify(unreleasedCommits));
-
     if (unreleasedCommits.length) {
       let commitStr = '';
       for (const commit of unreleasedCommits) {
