@@ -5942,8 +5942,6 @@ async function getUnreleasedCommits(token, latestRelease, daysToIgnore) {
     repo
   });
 
-  console.log(JSON.stringify(allCommitsResp.data))
-
   if (!allCommitsResp || !allCommitsResp.data || !allCommitsResp.data.length) throw new Error('Error fetching commits');
   if (!latestRelease || !latestRelease.created_at) throw new Error('Latest release doesnt have a created_at date');
   if (!daysToIgnore) daysToIgnore = 0;
@@ -5985,7 +5983,6 @@ const { logInfo } = __nccwpck_require__(653);
 async function createIssue(token, issueTitle, issueBody) {
   const octokit = github.getOctokit(token);
 
-  logInfo(issueBody);
   throw 'big error'
 
   return await octokit.issues.create({
@@ -6178,8 +6175,6 @@ async function run() {
 Tag:${latestRelease.tag_name}, author:${latestRelease.author.login}`);
 
     const unreleasedCommits = await getUnreleasedCommits(token, latestRelease, daysToIgnore);
-
-    logInfo(JSON.stringify(unreleasedCommits));
 
     if (unreleasedCommits.length) {
       let commitStr = '';
