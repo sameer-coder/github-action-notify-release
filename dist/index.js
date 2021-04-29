@@ -5979,27 +5979,20 @@ module.exports = {
 /***/ 608:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-"use strict";
-
-
-const core = __nccwpck_require__(186);
 const github = __nccwpck_require__(438);
 const { logInfo } = __nccwpck_require__(653);
 
 async function createIssue(token, issueTitle, issueBody) {
-  try {
-    const octokit = github.getOctokit(token);
+  const octokit = github.getOctokit(token);
 
-    logInfo(issueBody);
+  logInfo(issueBody);
+  throw 'big error'
 
-    return await octokit.issues.create({
-      ...github.context.repo,
-      title: issueTitle,
-      body: issueBody
-    });
-  } catch (error) {
-    core.setFailed(error.message);
-  }
+  return await octokit.issues.create({
+    ...github.context.repo,
+    title: issueTitle,
+    body: issueBody
+  });
 }
 
 module.exports = {
