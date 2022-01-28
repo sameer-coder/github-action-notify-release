@@ -11,6 +11,6 @@ jobs:
     steps:
       - name: Check if there's a release pending
         id: notify
-        uses: sameer-coder/github-action-notify-release@main
+        uses: sameer-coder/github-action-notify-release-1@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
